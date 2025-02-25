@@ -1,0 +1,66 @@
+[package]
+name = "gary"
+version = "0.1.0"
+edition = "2021"
+description = "sponge"
+authors = ["Gnome101"]
+license = "MIT OR Apache-2.0"
+homepage = "bob"
+repository = "https://github.com/stuff/gary"
+readme = "README.md"
+categories = ["cryptography", "cryptography::cryptocurrencies"]
+keywords = ["tangle", "blueprint", "avs"]
+rust-version = "1.81"
+
+[dependencies]
+
+async-trait = "0.1.86"
+# Gadget
+blueprint-sdk = { git = "https://github.com/tangle-network/gadget.git", default-features = false, features = [
+    "std",
+    "eigenlayer",
+    "evm",
+    "macros",
+    "build",
+] }
+color-eyre = "0.6.3"
+jsonrpc-core = "18.0.0"
+jsonrpc-http-server = "18.0.0"
+lazy_static = "1.5.0"
+num-bigint = "0.4.6"
+reqwest = "0.12.12"
+serde = { version = "1.0.208", features = ["derive"] }
+serde_json = "1.0.139"
+thiserror = "2.0.11"
+tokio = "1.43.0"
+tracing = "0.1.41"
+
+
+[build-dependencies]
+blueprint-sdk = { git = "https://github.com/tangle-network/gadget.git", default-features = false, features = [
+    "std",
+    "build",
+] }
+
+[features]
+default = ["std"]
+std = ["blueprint-sdk/std"]
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "gary"
+path = "src/main.rs"
+
+[package.metadata.blueprint]
+manager = { Evm = "TangleTaskManager" }
+
+[[package.metadata.gadget.Native.sources]]
+owner = "stuff"
+repo = "gary"
+tag = "0.1.0"
+binaries = [
+    { arch = "Amd64", os = "Linux", name = "amd64-linux-gary-gadget" },
+    { arch = "Arm64", os = "Linux", name = "arm64-linux-gary-gadget" },
+]
