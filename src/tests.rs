@@ -9,7 +9,7 @@ use blueprint_sdk::alloy::network::EthereumWallet;
 use blueprint_sdk::alloy::primitives::{Address, Bytes, U256};
 use alloy_provider::Provider;
 use blueprint_sdk::alloy::signer::local::PrivateKeySigner;
-use blueprint_sdk::alloy::sol_types;::sol;
+use blueprint_sdk::alloy::sol_types::SolType;
 use blueprint_sdk::logging::{error, info, setup_log};
 use blueprint_sdk::runners::eigenlayer::bls::EigenlayerBLSConfig;
 use blueprint_sdk::testing::utils::anvil::anvil::*;

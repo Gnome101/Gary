@@ -120,6 +120,8 @@ impl AggregatorContext {
 
     async fn start_server(aggregator: Arc<Mutex<Self>>) -> Result<(), Error> {
         let mut io = IoHandler::new();
+            info!("Start");
+
         io.add_method("process_signed_task_response", {
             let aggregator = Arc::clone(&aggregator);
             move |params: Params| {
@@ -293,6 +295,8 @@ impl AggregatorContext {
     }
 
     async fn process_response(&mut self, resp: SignedTaskResponse) -> Result<(), Error> {
+                    info!("Sending");
+
         let SignedTaskResponse {
             task_response,
             signature,
@@ -383,6 +387,8 @@ impl AggregatorContext {
         &self,
         response: BlsAggregationServiceResponse,
     ) -> Result<(), Error> {
+            info!("Sending");
+
         let non_signer_stakes_and_signature = NonSignerStakesAndSignature {
             nonSignerPubkeys: response
                 .non_signers_pub_keys_g1

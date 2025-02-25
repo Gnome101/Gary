@@ -44,6 +44,7 @@ pub async fn xsquare_eigen(
     task_index: u32,
 ) -> std::result::Result<u32, Infallible> {
     let client = ctx.client.clone();
+    info!("Xsquare");
 
     // Calculate our response to job
     let task_response = TaskResponse {
