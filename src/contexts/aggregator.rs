@@ -304,6 +304,7 @@ impl AggregatorContext {
         } = resp.clone();
         let task_index = task_response.referenceTaskIndex;
         let task_response_digest = keccak256(TaskResponse::abi_encode(&task_response));
+                    info!("Sending2");
 
         // Check if we have the task initialized first
         if !self.tasks.lock().await.contains_key(&task_index) {
@@ -314,6 +315,7 @@ impl AggregatorContext {
             self.response_cache.lock().await.push_back(resp);
             return Ok(());
         }
+                    info!("Sending3");
 
         if self
             .tasks_responses
@@ -329,11 +331,15 @@ impl AggregatorContext {
             );
             return Ok(());
         }
+                    info!("SendingA");
 
         info!(
             "Processing signed task response for task index: {}, task response digest: {}",
             task_index, task_response_digest
         );
+                    info!("Sending5");
+        info!(?operator_id);
+        info!(?signature);
 
         self.bls_aggregation_service
             .as_ref()
@@ -350,14 +356,18 @@ impl AggregatorContext {
             .await
             .map_err(|e| Error::Context(e.to_string()))?;
 
+                    info!("Sending9");
+
         if let Some(tasks_responses) = self.tasks_responses.lock().await.get_mut(&task_index) {
             tasks_responses.insert(task_response_digest, task_response.clone());
         }
+                    info!("Sending10");
 
         debug!(
             "Successfully processed new signature for task index: {}",
             task_index
         );
+                    info!("Sending11");
 
         if let Some(aggregated_response) = self
             .bls_aggregation_service
@@ -377,6 +387,8 @@ impl AggregatorContext {
             .recv()
             .await
         {
+                                info!("Sending12");
+
             let response = aggregated_response.map_err(|e| Error::Context(e.to_string()))?;
             self.send_aggregated_response_to_contract(response).await?;
         }

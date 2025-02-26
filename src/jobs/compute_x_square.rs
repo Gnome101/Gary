@@ -43,8 +43,9 @@ pub async fn xsquare_eigen(
     quorum_threshold_percentage: u8,
     task_index: u32,
 ) -> std::result::Result<u32, Infallible> {
+        info!("Xsquare");
+
     let client = ctx.client.clone();
-    info!("Xsquare");
 
     // Calculate our response to job
     let task_response = TaskResponse {
@@ -65,6 +66,8 @@ pub async fn xsquare_eigen(
         Err(e) => return Ok(0),
     };
     let operator_id = operator_id_from_key(bls_key_pair.clone());
+    info!("Operator");
+    info!(?operator_id);
 
     // Sign the Hashed Message and send it to the BLS Aggregator
     let msg_hash = keccak256(<TaskResponse as SolType>::abi_encode(&task_response));
