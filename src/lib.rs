@@ -5,6 +5,7 @@ use blueprint_sdk::macros::load_abi;
 use serde::{Deserialize, Serialize};
 use std::net::AddrParseError;
 use thiserror::Error;
+use blueprint_sdk::alloy::primitives::{Address, Bytes};
 
 pub mod constants;
 pub mod contexts;
@@ -57,6 +58,8 @@ load_abi!(
     INCREDIBLE_SQUARING_TASK_MANAGER_ABI_STRING,
     "contracts/out/IncredibleSquaringTaskManager.sol/IncredibleSquaringTaskManager.json"
 );
+
+// Add semicolons to struct declarations
 sol!(
     #[sol(event)]
     #[derive(Debug)]
@@ -76,6 +79,23 @@ sol!(
         pub requester: Address,
     }
 );
+
+// Import the missing BN254 and IBLSSignatureChecker types
+sol!(
+    #[allow(missing_docs)]
+    #[derive(Debug)]
+    BN254,
+    "eigenlayer-middleware/src/libraries/BN254.sol:BN254"
+);
+
+sol!(
+    #[allow(missing_docs)]
+    #[sol(rpc)]
+    #[derive(Debug)]
+    IBLSSignatureChecker,
+    "eigenlayer-middleware/src/BLSSignatureChecker.sol:BLSSignatureChecker"
+);
+
 sol!(
     #[allow(missing_docs)]
     #[sol(rpc)]
