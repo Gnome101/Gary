@@ -2,6 +2,7 @@
 pragma solidity >=0.8.13;
 
 import "eigenlayer-middleware/src/libraries/BN254.sol";
+import {BLSSignatureChecker, IRegistryCoordinator} from "eigenlayer-middleware/src/BLSSignatureChecker.sol";
 
 interface IIncredibleSquaringTaskManager {
     // EVENTS
@@ -57,23 +58,50 @@ interface IIncredibleSquaringTaskManager {
 
     // FUNCTIONS
     // NOTE: this function creates new task.
-    function createNewTask(
-        uint256 numberToBeSquared,
-        uint32 quorumThresholdPercentage,
-        bytes calldata quorumNumbers
+    // function createNewTask(
+    //     uint256 numberToBeSquared,
+    //     uint32 quorumThresholdPercentage,
+    //     bytes calldata quorumNumbers
+    // ) external;
+
+    // /// @notice Returns the current 'taskNumber' for the middleware
+    // function taskNumber() external view returns (uint32);
+
+    // // // NOTE: this function raises challenge to existing tasks.
+    // function raiseAndResolveChallenge(
+    //     Task calldata task,
+    //     TaskResponse calldata taskResponse,
+    //     TaskResponseMetadata calldata taskResponseMetadata,
+    //     BN254.G1Point[] memory pubkeysOfNonSigningOperators
+    // ) external;
+
+    // /// @notice Returns the TASK_RESPONSE_WINDOW_BLOCK
+    // function getTaskResponseWindowBlock() external view returns (uint32);
+    /// Emitted when aggregator sets or updates the public key
+    event AggregatorPublicKeySet(bytes newPublicKey);
+
+    /// Emitted when user adds a ciphertext
+    event EncryptedValueSubmitted(address indexed sender, bytes c1, bytes c2);
+
+    /// Emitted when someone requests aggregator to do final decryption
+    event DecryptionRequested(address indexed requester);
+
+    /// Emitted when aggregator posts final sum
+    event DecryptionResultPosted(uint256 sum);
+
+    function setAggregatorPublicKey(bytes calldata pk) external;
+
+    function submitEncryptedValue(
+        bytes calldata c1,
+        bytes calldata c2
     ) external;
 
-    /// @notice Returns the current 'taskNumber' for the middleware
-    function taskNumber() external view returns (uint32);
+    function requestDecryption() external;
 
-    // // NOTE: this function raises challenge to existing tasks.
-    function raiseAndResolveChallenge(
+    function setDecryptionResult(uint256 sum) external;
+
+    function respondToTask(
         Task calldata task,
-        TaskResponse calldata taskResponse,
-        TaskResponseMetadata calldata taskResponseMetadata,
-        BN254.G1Point[] memory pubkeysOfNonSigningOperators
+        TaskResponse calldata taskResponse
     ) external;
-
-    /// @notice Returns the TASK_RESPONSE_WINDOW_BLOCK
-    function getTaskResponseWindowBlock() external view returns (uint32);
 }

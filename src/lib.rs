@@ -57,7 +57,25 @@ load_abi!(
     INCREDIBLE_SQUARING_TASK_MANAGER_ABI_STRING,
     "contracts/out/IncredibleSquaringTaskManager.sol/IncredibleSquaringTaskManager.json"
 );
+sol!(
+    #[sol(event)]
+    #[derive(Debug)]
+    pub struct EncryptedValueSubmitted {
+        #[sol(indexed)]
+        pub sender: Address,
+        pub c1: Bytes,
+        pub c2: Bytes,
+    }
+);
 
+sol!(
+    #[sol(event)]
+    #[derive(Debug)]
+    pub struct DecryptionRequested {
+        #[sol(indexed)]
+        pub requester: Address,
+    }
+);
 sol!(
     #[allow(missing_docs)]
     #[sol(rpc)]

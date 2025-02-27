@@ -35,6 +35,57 @@ use std::collections::HashMap;
 pub type BlsAggServiceInMemory = BlsAggregatorService<
     AvsRegistryServiceChainCaller<AvsRegistryChainReader, OperatorInfoServiceInMemory>,
 >;
+use elastic_elgamal::{
+    group::{Group, Ristretto},
+    Keypair, Ciphertext, PublicKey, SecretKey, DiscreteLogTable,
+};
+
+
+#[derive(Clone)]
+pub struct ElGamalState {
+    pub pk: PublicKey<Ristretto>,
+    pub sk: SecretKey<Ristretto>,
+    pub running_sum: Option<Ciphertext<Ristretto>>,
+    pub dlog_table: DiscreteLogTable<Ristretto>,
+}
+
+impl ElGamalState {
+    pub fn new() -> Self {
+        let mut rng = rand::thread_rng();
+        let (pk, sk) = Keypair::<Ristretto>::generate(&mut rng).into_tuple();
+        // Build a discrete log table for a known range, e.g. up to 1,000,000
+        let dlog_table = DiscreteLogTable::new(0..1_000_000);
+
+        Self {
+            pk,
+            sk,
+            running_sum: None,
+            dlog_table,
+        }
+    }
+
+    /// Add a new ciphertext to the running sum
+    pub fn add_ciphertext(&mut self, new_cipher: Ciphertext<Ristretto>) {
+        self.running_sum = Some(match self.running_sum.take() {
+            None => new_cipher,
+            Some(prev) => prev + new_cipher,
+        });
+    }
+
+    /// Decrypt the final sum
+    pub fn decrypt_sum(&mut self) -> u64 {
+        if let Some(final_cipher) = self.running_sum.take() {
+            if let Some(plaintext) = self.sk.decrypt(final_cipher, &self.dlog_table) {
+                plaintext
+            } else {
+                // If out of range, fallback or revert
+                0
+            }
+        } else {
+            0
+        }
+    }
+}
 
 #[derive(Clone, EigenlayerContext, KeystoreContext)]
 pub struct AggregatorContext {
@@ -48,6 +99,7 @@ pub struct AggregatorContext {
     pub response_cache: Arc<Mutex<VecDeque<SignedTaskResponse>>>,
     #[config]
     pub sdk_config: GadgetConfiguration,
+    pub elgamal_state: Arc<Mutex<ElGamalState>>,
     shutdown: Arc<(Notify, Mutex<bool>)>,
 }
 
@@ -68,6 +120,7 @@ impl AggregatorContext {
             wallet,
             response_cache: Arc::new(Mutex::new(VecDeque::new())),
             sdk_config,
+            elgamal_state: Arc::new(Mutex::new(ElGamalState::new())),
             shutdown: Arc::new((Notify::new(), Mutex::new(false))),
         };
 
@@ -445,8 +498,7 @@ impl AggregatorContext {
         let _ = task_manager
             .respondToTask(
                 task.clone(),
-                task_response.clone(),
-                non_signer_stakes_and_signature,
+                task_response.clone()
             )
             .from(NetworkWallet::<Ethereum>::default_signer_address(
                 &self.wallet,
