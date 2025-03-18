@@ -14,7 +14,7 @@ rust-version = "1.81"
 
 [dependencies]
 
-async-trait = "0.1.86"
+async-trait = "0.1.88"
 # Gadget
 blueprint-sdk = { git = "https://github.com/tangle-network/gadget.git", default-features = false, features = [
     "std",
